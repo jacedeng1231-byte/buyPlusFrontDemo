@@ -5,6 +5,7 @@ export const store = reactive({
   orders: [], // 紀錄歷史訂單
   favorites: [], // 我的收藏
   isLoggedIn: false, // 登入狀態 (預設未登入)
+  cartAnimations: [], // 用於存放飛向購物車的動畫物件
   user: {
     name: '林玉珊',
     id: 1,
@@ -35,6 +36,15 @@ export const store = reactive({
   },
   toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  },
+  // 觸發購物車動畫
+  triggerAnimation(x, y, image) {
+    const id = Date.now();
+    this.cartAnimations.push({ id, x, y, image });
+    // 動畫完成後移除 (假設動畫時間為 1 秒)
+    setTimeout(() => {
+      this.cartAnimations = this.cartAnimations.filter(a => a.id !== id);
+    }, 1000);
   },
   // 收藏操作
   toggleFavorite(product) {

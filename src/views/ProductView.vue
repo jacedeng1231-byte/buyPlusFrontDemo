@@ -98,8 +98,8 @@
 
                 <div class="d-flex gap-2 w-100">
                   <button 
-                    @click.stop="handleAddToCart(product)"
-                    class="btn btn-primary rounded-pill flex-grow-1 py-1 py-md-2 fw-bold borderSet shadow-sm btn-sm"
+                    @click.stop="handleAddToCart($event, product)"
+                    class="btn btn-primary rounded-pill flex-grow-1 py-1 py-md-2 fw-bold borderSet shadow-sm btn-sm cart-btn"
                   >
                     <i class="bi bi-cart-plus-fill me-md-1"></i>
                     <span class="d-none d-md-inline lh-1">加入</span>
@@ -238,8 +238,8 @@
                     </div>
                     <div class="col-7">
                       <button 
-                        @click="modalAddToCart"
-                        class="btn btn-primary w-100 rounded-pill py-2 fw-bold borderSet shadow-sm transition-all"
+                        @click="modalAddToCart($event)"
+                        class="btn btn-primary w-100 rounded-pill py-2 fw-bold borderSet shadow-sm transition-all cart-btn"
                       >
                         <i class="bi bi-cart-plus me-1"></i> 加入購物車
                       </button>
@@ -472,7 +472,7 @@ export default {
       }
       this.productModal.show();
     },
-    modalAddToCart() {
+    modalAddToCart(event) {
       if (this.selectedProduct.specs) {
         const spec = {};
         if (this.selectedProduct.specs.sizes) spec.size = this.selectedProduct.selectedSize;
@@ -485,9 +485,13 @@ export default {
           this.store.addToCart(this.selectedProduct);
         }
       }
+      // 觸發飛行元件動畫
+      if (event) {
+        this.store.triggerAnimation(event.clientX, event.clientY, this.selectedProduct.image);
+      }
       this.productModal.hide();
     },
-    handleAddToCart(product) {
+    handleAddToCart(event, product) {
       if (product.specs) {
         const spec = {};
         if (product.specs.sizes) spec.size = product.selectedSize;
@@ -495,6 +499,10 @@ export default {
         this.store.addToCart(product, spec);
       } else {
         this.store.addToCart(product);
+      }
+      // 觸發飛行元件動畫
+      if (event) {
+        this.store.triggerAnimation(event.clientX, event.clientY, product.image);
       }
     },
     changeCategory(cat) {
@@ -591,4 +599,8 @@ export default {
 .row > div:nth-child(3) { animation-delay: 0.2s; }
 .row > div:nth-child(4) { animation-delay: 0.25s; }
 .row > div:nth-child(5) { animation-delay: 0.3s; }
+
+.cart-btn:active {
+  transform: scale(0.9) !important;
+}
 </style>

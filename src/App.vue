@@ -22,9 +22,9 @@
       </router-link>
 
       <!-- 右：購物車入口  -->
-      <router-link to="/checkout" @click="hideMobileMenuOnlyIfOpen" class="btn bg-white borderSet shadow-sm position-relative rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-        <i class="bi bi-cart3 fs-5 text-dark"></i>
-        <span v-if="store.cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white mt-1 ms-n1">
+      <router-link to="/checkout" @click="hideMobileMenuOnlyIfOpen" class="btn bg-white borderSet shadow-sm position-relative rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;" id="global-cart-icon">
+        <i class="bi bi-cart3 fs-5 text-dark" :class="{ 'animate-pulse': store.cartAnimations.length > 0 }"></i>
+        <span v-if="store.cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white mt-1 ms-n1 cart-badge-update">
           {{ store.cartCount }}
           <span class="visually-hidden">購物車商品數量</span>
         </span>
@@ -55,6 +55,9 @@
       </div>
     </div>
     
+    <!-- 全域購物車動畫元件 -->
+    <CartAnimation />
+
     <!-- 手機版隱藏菜單 Offcanvas -->
     <div class="offcanvas offcanvas-start border-0 rounded-end-4 shadow-lg" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel" style="width: 85vw; max-width: 400px;">
       <div class="offcanvas-header border-bottom">
@@ -74,11 +77,13 @@
 <script>
 import { Offcanvas } from 'bootstrap';
 import Menubar from './components/Navbar.vue';
+import CartAnimation from './components/CartAnimation.vue';
 import { store } from './store.js';
 
 export default {
   components: {
-    Menubar
+    Menubar,
+    CartAnimation
   },
   data() {
     return {
@@ -109,3 +114,28 @@ export default {
   }
 }
 </script>
+
+<style>
+.animate-pulse {
+  animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.cart-badge-update {
+  animation: badgePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes badgePop {
+  0% { transform: translate(50%, -50%) scale(0.5); opacity: 0; }
+  100% { transform: translate(50%, -50%) scale(1); opacity: 1; }
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+</style>

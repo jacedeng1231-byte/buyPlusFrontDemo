@@ -122,13 +122,13 @@
         <div class="col" v-for="item in menuList" :key="item.title">
           <template v-if="item.action">
             <button @click="handleMenuAction(item.action)" class="rounded-pill py-2 text-decoration-none w-100 d-flex align-items-center justify-content-center borderSet text-dark transition-all bg-white h-100" @mouseenter="showTooltip($event, item.title)" @mouseleave="hideTooltip">
-              <i :class="[item.icon, { 'me-md-2': !store.isSidebarCollapsed || isMobile }]" class="d-none d-md-inline"></i>
+              <i :class="[item.icon, { 'd-md-inline': store.isSidebarCollapsed }]" class="d-none"></i>
               <span v-if="!store.isSidebarCollapsed || isMobile" class="small d-none d-md-inline">{{ item.title }}</span>
               <span class="d-md-none x-small">{{ item.title }}</span>
             </button>
           </template>
           <router-link v-else :to="item.link" @click="hideModal" class="rounded-pill py-2 text-decoration-none w-100 d-flex align-items-center justify-content-center borderSet text-dark transition-all h-100" active-class="_none" :class="{ 'custom-active': $route.path === item.link }" @mouseenter="showTooltip($event, item.title)" @mouseleave="hideTooltip">
-            <i :class="[item.icon, { 'me-md-2': !store.isSidebarCollapsed || isMobile }]" class="d-none d-md-inline"></i>
+            <i :class="[item.icon, { 'd-md-inline': store.isSidebarCollapsed }]" class="d-none"></i>
             <span v-if="!store.isSidebarCollapsed || isMobile" class="small d-none d-md-inline">{{ item.title }}</span>
             <span class="d-md-none x-small">{{ item.title }}</span>
           </router-link>
