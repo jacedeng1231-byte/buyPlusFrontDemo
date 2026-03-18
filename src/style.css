@@ -1,0 +1,136 @@
+:root, [data-bs-theme="light"] {
+  --bs-primary: #FDA085;
+  --bs-primary-rgb: 253, 160, 133;
+  --bs-secondary: #3A77F0;
+  --bs-secondary-rgb: 58, 119, 240;
+  
+  --bs-primary-text-emphasis: #FDA085;
+  --bs-secondary-text-emphasis: #3A77F0;
+  --bs-link-color: var(--bs-primary);
+  --bs-link-hover-color: #e59078;
+}
+
+/* Button UI Override for Bootstrap */
+.btn-primary {
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: #ec957c;
+  --bs-btn-hover-border-color: #ec957c;
+  --bs-btn-active-bg: #df8d76;
+  --bs-btn-active-border-color: #df8d76;
+  --bs-btn-disabled-bg: var(--bs-primary);
+  --bs-btn-disabled-border-color: var(--bs-primary);
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-active-bg: var(--bs-primary);
+  --bs-btn-active-border-color: var(--bs-primary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+}
+
+.btn-secondary {
+  --bs-btn-bg: var(--bs-secondary);
+  --bs-btn-border-color: var(--bs-secondary);
+  --bs-btn-hover-bg: #346bd8;
+  --bs-btn-hover-border-color: #346bd8;
+  --bs-btn-active-bg: #2e5fbf;
+  --bs-btn-active-border-color: #2e5fbf;
+  --bs-btn-disabled-bg: var(--bs-secondary);
+  --bs-btn-disabled-border-color: var(--bs-secondary);
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--bs-secondary);
+  --bs-btn-border-color: var(--bs-secondary);
+  --bs-btn-hover-bg: var(--bs-secondary);
+  --bs-btn-hover-border-color: var(--bs-secondary);
+  --bs-btn-active-bg: var(--bs-secondary);
+  --bs-btn-active-border-color: var(--bs-secondary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+}
+
+
+
+/* Force text-primary to use our new primary */
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+.text-secondary {
+  color: var(--bs-secondary) !important;
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+.bg-secondary {
+  background-color: var(--bs-secondary) !important;
+}
+
+.border-primary {
+  border-color: var(--bs-primary) !important;
+}
+.border-secondary {
+  border-color: var(--bs-secondary) !important;
+}
+/* Mainstream E-commerce UI Transitions & Effects */
+.borderSet {
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.borderSet:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+.borderSet.active, 
+.borderSet.router-link-active {
+  color: var(--bs-primary) !important;
+  background-color: rgba(var(--bs-primary-rgb), 0.08) !important;
+  border-color: var(--bs-primary) !important;
+  box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb), 0.12) !important;
+  font-weight: 700 !important;
+}
+
+.borderSet-light {
+  border: 1px solid #eee !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  transition: all 0.2s ease;
+}
+
+.borderSet-light:hover {
+    border-color: var(--bs-primary) !important;
+    background-color: #fff9f8 !important;
+}
+
+/* Specific UI overrides to match clean look */
+.card {
+    border-color: #eee !important;
+}
+
+.form-control, .form-select {
+    border: 1px solid #eee !important;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(253, 160, 133, 0.25) !important;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    background-color: var(--bs-primary);
+}
