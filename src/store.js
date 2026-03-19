@@ -14,6 +14,12 @@ export const store = reactive({
     provider: ''
   },
   isSidebarCollapsed: false, // 側邊欄收折狀態 (僅限電腦版)
+  assistant: {
+    state: 'idle', // 'idle', 'processing', 'success', 'error'
+    message: '',
+    isVisible: true,
+    timeout: null
+  },
   get cartCount() {
     return this.cart.reduce((total, item) => total + item.quantity, 0);
   },
@@ -79,6 +85,9 @@ export const store = reactive({
         spec: spec ? { ...spec } : null
       });
     }
+
+    // Trigger Assistant Success
+    this.showAssistantMessage(`品味真好！「${product.name}」已加入您的口袋名單囉！🦊✨`, 'success', 4000);
   },
   createOrder(orderData) {
     const now = new Date();
@@ -108,6 +117,10 @@ export const store = reactive({
     
     this.orders.unshift(newOrder);
     this.clearCart();
+
+    // Trigger Assistant Success
+    this.showAssistantMessage(`訂單 #${orderId} 成立啦！我會幫您盯著進度的！🚚💨`, 'success', 5000);
+    
     return newOrder;
   },
   reportTransfer(orderId, reportData) {
@@ -142,5 +155,26 @@ export const store = reactive({
   },
   clearCart() {
     this.cart = [];
+  },
+  // Assistant Actions
+  setAssistantState(state) {
+    this.assistant.state = state;
+  },
+  showAssistantMessage(message, state = 'idle', duration = 5000) {
+    this.assistant.message = message;
+    this.assistant.state = state;
+    this.assistant.isVisible = true;
+
+    if (this.assistant.timeout) {
+      clearTimeout(this.assistant.timeout);
+    }
+
+    if (duration > 0) {
+      this.assistant.timeout = setTimeout(() => {
+        this.assistant.message = '';
+        this.assistant.state = 'idle';
+        this.assistant.timeout = null;
+      }, duration);
+    }
   }
 });

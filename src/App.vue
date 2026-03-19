@@ -3,7 +3,7 @@
     
     <!-- 全域頂部導覽列 (Top Header) -->
     <header class="d-flex align-items-center justify-content-between mb-3 flex-shrink-0 px-1 px-md-3">
-      <!-- 左：手機版漢堡選單 (只在小螢幕顯示) -->
+      <!-- 左：手機版漢堡選單 (只在小螢幕顯示) / 桌面版小助手 -->
       <button 
         class="btn bg-white borderSet shadow-sm d-md-none rounded-circle d-flex align-items-center justify-content-center" 
         style="width: 45px; height: 45px;" 
@@ -13,8 +13,10 @@
         <i class="bi bi-list fs-4 text-dark"></i>
       </button>
       
-      <!-- 佔位用，幫助桌面版 Logo 居中 -->
-      <div class="d-none d-md-block" style="width: 45px;"></div>
+      <!-- 桌面版：小助手整合進 Header (取代原本的 Spacer) -->
+      <div class="d-none d-md-block" style="width: 60px;">
+        <AssistantAgent inHeader />
+      </div>
 
       <!-- 中：中央 Logo -->
       <router-link to="/" class="text-decoration-none text-dark fw-bolder fs-3" style="letter-spacing: 1px;">
@@ -58,6 +60,9 @@
     <!-- 全域購物車動畫元件 -->
     <CartAnimation />
 
+    <!-- 全域小助手元件 (手機版浮動) -->
+    <AssistantAgent class="d-md-none" />
+
     <!-- 手機版隱藏菜單 Offcanvas -->
     <div class="offcanvas offcanvas-start border-0 rounded-end-4 shadow-lg" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel" style="width: 85vw; max-width: 400px;">
       <div class="offcanvas-header border-bottom">
@@ -78,12 +83,14 @@
 import { Offcanvas } from 'bootstrap';
 import Menubar from './components/Navbar.vue';
 import CartAnimation from './components/CartAnimation.vue';
+import AssistantAgent from './components/AssistantAgent.vue';
 import { store } from './store.js';
 
 export default {
   components: {
     Menubar,
-    CartAnimation
+    CartAnimation,
+    AssistantAgent
   },
   data() {
     return {
