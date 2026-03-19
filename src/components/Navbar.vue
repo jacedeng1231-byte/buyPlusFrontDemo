@@ -30,11 +30,16 @@
         <!-- avatar -->
         <div class="position-relative" :class="{ 'me-md-3': !store.isSidebarCollapsed }">
           <img
+            v-if="store.user.avatar"
             :src="store.user.avatar"
             class="rounded-circle border border-3 transition-all"
             :width="store.isSidebarCollapsed ? '35' : '60'"
             :height="store.isSidebarCollapsed ? '35' : '60'"
           />
+          <div v-else class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center border border-3 border-white"
+               :style="{ width: (store.isSidebarCollapsed ? '35px' : '60px'), height: (store.isSidebarCollapsed ? '35px' : '60px') }">
+            <i class="bi bi-person"></i>
+          </div>
           <!-- provider icon -->
           <i
             v-if="store.user.provider"

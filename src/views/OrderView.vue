@@ -25,9 +25,11 @@
             <button class="nav-link fw-bold w-100 py-3 text-center borderSet bg-white rounded-4 shadow-none" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">所有訂單</button>
           </li>
           <!-- 搜尋訂單 -->
-          <li class="nav-item" role="presentation">
-            <button class="nav-link fw-bold w-100 py-3 text-center borderSet bg-white rounded-4 shadow-none" id="search-tab" data-bs-toggle="pill" data-bs-target="#search" type="button" role="tab">搜尋訂單</button>
-          </li>
+           <li class="nav-item flex-sm-grow-1" role="presentation">
+             <button @click="onSearchTabClick" class="nav-link w-100 rounded-pill-end borderSet-link py-2" id="search-tab" data-bs-toggle="tab" data-bs-target="#search" type="button" role="tab" aria-controls="search" aria-selected="false">
+               <i class="bi bi-search me-1"></i>搜尋
+             </button>
+           </li>
         </ul>
       </div>
 
@@ -270,73 +272,63 @@
 
         <!-- ==================== 4. 搜尋 ==================== -->
         <div class="tab-pane fade h-100" id="search" role="tabpanel">
-           <div class="d-flex align-items-baseline mb-4">
-             <h3 class="fw-bolder mb-0 me-3 text-dark">搜尋訂單</h3>
-             <span class="text-muted small">輸入條件以快速篩選您的歷史訂單紀錄</span>
+           <!-- 擺擺 駐守區域 - 極簡手繪版 -->
+           <div class="mb-5 p-4 rounded-4 bg-glass border border-white position-relative overflow-hidden shadow-sm sketch-paper">
+             <AssistantAgent isStationed />
+             <!-- 裝飾背景 -->
+             <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 rotate-15 d-none d-md-block" style="font-size: 5rem !important;">📚</div>
            </div>
            
-           <div class="row g-4 border rounded-4 p-4 bg-light mx-0 mb-5">
-             <div class="col-12 border-bottom border-light pb-2 mb-2">
-                 <h6 class="fw-bold text-primary mb-0"><i class="bi bi-search me-2"></i>基本條件</h6>
+                 <!-- 檢索終端 (智慧圖書館主題 - 與 MoneyTransferView 同步) -->
+           <div class="row g-4 border border-white rounded-4 p-4 bg-glass mx-0 mb-4 shadow-sm position-relative overflow-hidden">
+             <!-- 背景細微裝飾 -->
+             <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 rotate-15 d-none d-md-block">📖</div>
+             
+             <div class="col-12 border-bottom border-light pb-2 mb-2 text-start">
+                  <h6 class="fw-bold text-dark mb-0"><i class="bi bi-journal-bookmark me-2 text-primary"></i>檢索案件內容</h6>
              </div>
              
-             <!-- a. 訂單編號(input) -->
-             <div class="col-md-6">
-               <label class="form-label text-secondary small fw-bold">訂單編號</label>
-               <input type="text" class="form-control  border-0 py-2 shadow-sm" placeholder="輸入訂單編號 (例如: ORD-001)">
+             <!-- 欄位設計 -->
+             <div class="col-md-6 text-start">
+               <label class="form-label text-secondary small fw-bold">訂單編號 (索引號)</label>
+               <input type="text" class="form-control border-white py-2 bg-white-50 shadow-none rounded-3" placeholder="例如: ORD-001">
              </div>
              
-             <!-- a. 商品名稱(input) -->
-             <div class="col-md-6">
-               <label class="form-label text-secondary small fw-bold">商品名稱</label>
-               <input type="text" class="form-control  border-0 py-2 shadow-sm" placeholder="輸入商品名稱關鍵字">
+             <div class="col-md-6 text-start">
+               <label class="form-label text-secondary small fw-bold">商品名稱 (關鍵字)</label>
+               <input type="text" class="form-control border-white py-2 bg-white-50 shadow-none rounded-3" placeholder="關鍵字...">
              </div>
              
-             <!-- a. 訂貨開始/結束日期(input+date) -->
-             <div class="col-md-6">
-               <label class="form-label text-secondary small fw-bold">訂貨開始日期</label>
-               <input type="date" class="form-control  border-0 py-2 shadow-sm">
+             <div class="col-md-6 text-start">
+               <label class="form-label text-secondary small fw-bold">訂貨起始日期</label>
+               <input type="date" class="form-control border-white py-2 bg-white-50 shadow-none rounded-3">
              </div>
-             <div class="col-md-6">
+             <div class="col-md-6 text-start">
                <label class="form-label text-secondary small fw-bold">訂貨結束日期</label>
-               <input type="date" class="form-control  border-0 py-2 shadow-sm">
+               <input type="date" class="form-control border-white py-2 bg-white-50 shadow-none rounded-3">
              </div>
 
-             <!-- a. 出貨開始/結束日期(input+date) -->
-             <div class="col-md-6">
-               <label class="form-label text-secondary small fw-bold">出貨開始日期</label>
-               <input type="date" class="form-control  border-0 py-2 shadow-sm">
+             <!-- 進階典藏篩選 (整合進主卡片) -->
+             <div class="col-12 mt-4 pt-3 border-top border-light">
+               <div class="d-flex flex-wrap gap-4">
+                 <div class="form-check">
+                   <input class="form-check-input border-secondary" type="checkbox" id="outofstockCheck">
+                   <label class="form-check-label text-dark fw-bold small" for="outofstockCheck">包含絕版品 (斷貨)</label>
+                 </div>
+                 <div class="form-check">
+                   <input class="form-check-input border-secondary" type="checkbox" id="onlyMatchCheck" checked>
+                   <label class="form-check-label text-dark fw-bold small" for="onlyMatchCheck">精確檢索 (完全符合)</label>
+                 </div>
+               </div>
              </div>
-             <div class="col-md-6">
-               <label class="form-label text-secondary small fw-bold">出貨結束日期</label>
-               <input type="date" class="form-control  border-0 py-2 shadow-sm">
-             </div>
-           </div>
 
-           <!-- b. 進階條件 -->
-           <h6 class="fw-bold border-bottom border-light pb-2 mb-4 text-dark d-flex align-items-center">
-               <i class="bi bi-sliders me-2 text-secondary"></i> 進階條件
-           </h6>
-           <div class="bg-white p-4 rounded-4 border">
-               <div class="form-check form-check-inline me-4 mb-3 mb-md-0">
-                 <input class="form-check-input bg-light border-secondary" type="checkbox" id="outofstockCheck">
-                 <label class="form-check-label text-dark fw-bold" for="outofstockCheck">
-                   包含已斷貨商品
-                 </label>
-               </div>
-               <div class="form-check form-check-inline">
-                 <input class="form-check-input bg-light border-secondary" type="checkbox" id="onlyMatchCheck" checked>
-                 <label class="form-check-label text-dark fw-bold" for="onlyMatchCheck">
-                   只顯示完全符合的商品
-                 </label>
-               </div>
-           </div>
-           
-           <div class="d-flex justify-content-end mt-5 gap-3">
-             <button class="btn btn-light px-4 py-2 fw-bold text-dark rounded-pill border shadow-none">清除重填</button>
-             <button class="btn btn-primary px-5 py-2 fw-bold borderSet rounded-pill border-primary shadow-none">
-                <i class="bi bi-search me-2"></i> 開始搜尋
-             </button>
+             <!-- 操作按鈕 (Pill 造型同步) -->
+             <div class="col-12 text-end mt-4">
+               <button class="btn btn-outline-secondary px-4 py-2 fw-bold rounded-pill shadow-none me-2">重置</button>
+               <button class="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow-sm">
+                  <i class="bi bi-search me-2"></i>開始調閱資料
+               </button>
+             </div>
            </div>
         </div>
 
@@ -379,6 +371,18 @@
   border-color: var(--bs-primary);
 }
 
+.sketch-paper {
+  background-color: #fcfaf2;
+  background-image: 
+    radial-gradient(#e1dec9 1px, transparent 0),
+    linear-gradient(to right, rgba(200, 200, 200, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(200, 200, 200, 0.1) 1px, transparent 1px);
+  background-size: 3px 3px, 20px 20px, 20px 20px; /* Grain + subtle grid */
+  border: 1px solid #dcd8c0 !important;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.02);
+  padding-top: 2.5rem !important;
+}
+
 /* 讓表格內文看起來更清爽乾淨 */
 .table th {
   font-weight: 600;
@@ -389,13 +393,53 @@
 .table td {
   vertical-align: middle;
 }
+
+/* Glassmorphism Library Theme */
+.bg-glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.bg-glass-dark {
+  background: rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.librarian-station-bg {
+  width: 60px;
+  height: 60px;
+  background: var(--bs-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  border-radius: 18px;
+  transform: rotate(-10deg);
+  box-shadow: 4px 4px 15px rgba(0,0,0,0.1);
+}
+
+.rotate-15 {
+  transform: rotate(15deg);
+}
+
+.bg-white-50 {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
 </style>
 
 <script>
 import { store } from '../store.js';
+import AssistantAgent from '../components/AssistantAgent.vue';
 
 export default {
   name: 'OrderView',
+  components: {
+    AssistantAgent
+  },
   data() {
     return {
       store,
@@ -410,6 +454,13 @@ export default {
     },
     allOrders() {
       return this.store.orders;
+    }
+  },
+  methods: {
+    onSearchTabClick() {
+      setTimeout(() => {
+        this.store.showAssistantMessage("管理員 擺擺 已就位！👓📚 請輸入關鍵字，我將為您翻閱卷宗...", 'processing', 6000);
+      }, 500);
     }
   },
   mounted() {
@@ -430,7 +481,7 @@ export default {
       } else if (processingCount > 0) {
         this.store.showAssistantMessage(`您有 ${processingCount} 筆訂單正在處理中，我也在同步追蹤進度，請放心交給我！🦊📦`, 'success', 5000);
       } else {
-        this.store.showAssistantMessage("這裡是訂購紀錄，您所有的購買歷史我都會為您細心守護！🦊🛡️", 'idle', 5000);
+        this.store.showAssistantMessage("這裡是訂購紀錄，您所有的購買歷史 擺擺 都會為您細心守護！🛡️", 'idle', 5000);
       }
     }, 1500);
   }

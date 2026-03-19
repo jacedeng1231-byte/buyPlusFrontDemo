@@ -15,7 +15,7 @@
       
       <!-- 桌面版：小助手整合進 Header (取代原本的 Spacer) -->
       <div class="d-none d-md-block" style="width: 60px;">
-        <AssistantAgent inHeader />
+        <AssistantAgent v-if="!isLibrarianRoute" inHeader />
       </div>
 
       <!-- 中：中央 Logo -->
@@ -61,7 +61,7 @@
     <CartAnimation />
 
     <!-- 全域小助手元件 (手機版浮動) -->
-    <AssistantAgent class="d-md-none" />
+    <AssistantAgent v-if="!isLibrarianRoute" class="d-md-none" />
 
     <!-- 手機版隱藏菜單 Offcanvas -->
     <div class="offcanvas offcanvas-start border-0 rounded-end-4 shadow-lg" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel" style="width: 85vw; max-width: 400px;">
@@ -97,6 +97,12 @@ export default {
       store,
       mobileMenu: null
     };
+  },
+  computed: {
+    isLibrarianRoute() {
+      const path = this.$route.path;
+      return path.includes('order') || path.includes('money-transfer');
+    }
   },
   mounted() {
     const el = document.getElementById('mobileMenu');

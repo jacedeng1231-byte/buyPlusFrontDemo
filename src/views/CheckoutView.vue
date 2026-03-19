@@ -361,7 +361,7 @@ export default {
       if (step === 2) {
         if (this.store.cartCount === 0) return;
         if (!this.store.isLoggedIn) {
-          this.store.showAssistantMessage("等一下下！結帳前需要先登入才能紀錄您的配送資訊喔！內選單已為您開啟，請選擇登入方式 🦊🔒", 'idle', 6000);
+          this.store.showAssistantMessage("等一下下！結帳前需要先登入才能紀錄您的配送資訊喔！內選單已為您開啟，請選擇登入方式 擺擺 🔒", 'idle', 6000);
           this.store.openMobileMenu();
           return;
         }
@@ -386,12 +386,12 @@ export default {
     },
     onCouponFocus() {
       if (this.store.coupon.isApplied) return;
-      this.store.showAssistantMessage("需要優惠碼嗎？我幫您找出了專屬折扣喔！🦊✨", 'processing', 10000, {
-        label: "套用 BUYPLUS2026 (9折) 🎁",
+      this.store.showAssistantMessage("需要優惠碼嗎？擺擺 幫您找出了專屬折扣喔！🦊✨", 'processing', 6000, {
+        label: "套用折扣碼：BUYPLUS2026",
         callback: () => {
           this.couponCode = 'BUYPLUS2026';
           this.handleApplyCoupon();
-          this.store.showAssistantMessage("太棒了！已為您自動輸入並套用 10% 折扣囉！🦊🎊", 'success', 5000);
+          this.store.showAssistantMessage("已為您自動帶入折扣碼！結帳省錢就是這麼簡單！擺擺 💰", 'success', 4000);
         }
       });
     },

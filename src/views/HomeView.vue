@@ -403,7 +403,7 @@ export default {
       });
 
       // 觸發小助手
-      this.store.showAssistantMessage(`這款「${product.name}」目前超熱賣的喔！需要幫您幫放入購物車嗎？🦊💎`, 'success', 6000);
+      this.store.showAssistantMessage(`這款「${product.name}」目前超熱賣的喔！需要幫您幫放入購物車嗎？擺擺💎`, 'success', 6000);
     },
     addToCartFromModal() {
       if (!this.selectedProduct) return;

@@ -1,8 +1,16 @@
 <template>
-  <div v-if="store.assistant.isVisible" 
+  <div v-if="store.assistant.isVisible || props.isStationed" 
        class="assistant-container" 
-       :class="[store.assistant.state, { 'has-message': store.assistant.message, 'in-header': inHeader }]">
+       :class="[store.assistant.state, { 'has-message': store.assistant.message, 'in-header': props.inHeader, 'is-librarian': isLibrarianRoute, 'is-stationed': props.isStationed }]">
     
+    <!-- Hidden SVG Filter for Shaky Hand-drawn Lines (Must be before use) -->
+    <svg style="position: absolute; width: 0; height: 0; pointer-events: none;" aria-hidden="true">
+      <filter id="shaky-pencil" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" />
+      </filter>
+    </svg>
+
     <!-- Speech Bubble -->
     <transition name="pop">
       <div v-if="store.assistant.message" class="speech-bubble">
@@ -19,8 +27,8 @@
       </div>
     </transition>
 
-    <!-- Foxy Mascot -->
-    <div class="foxy-mascot" @click="handleMascotClick">
+    <!-- Bāi Bāi Mascot -->
+    <div class="baibai-mascot" @click="handleMascotClick">
       <div class="mascot-image" :style="mascotStyle"></div>
     </div>
   </div>
@@ -35,11 +43,19 @@ const props = defineProps({
   inHeader: {
     type: Boolean,
     default: false
+  },
+  isStationed: {
+    type: Boolean,
+    default: false
   }
 });
 
 const route = useRoute();
 const idleTimer = ref(null);
+
+const isLibrarianRoute = computed(() => {
+  return route.path.includes('order') || route.path.includes('money-transfer');
+});
 
 const mascotStyle = computed(() => {
   let position = '0% 0%'; // Default Idle
@@ -165,7 +181,7 @@ const handleMascotClick = () => {
         }
       );
     } else {
-      thinkAndSpeak("歡迎回來！這裡記錄了您的所有購物回憶，有任何問題隨時找我喔！🦊✨", 'idle', 5000);
+      thinkAndSpeak("歡迎回來！這裡記錄了您的所有購物回憶，有任何問題隨時找我喔！擺擺 ✨", 'idle', 5000);
     }
     return;
   }
@@ -176,7 +192,7 @@ const handleMascotClick = () => {
     return;
   }
 
-  thinkAndSpeak("需要幫忙嗎？我是您的購物小助理 Foxy！🦊", 'idle', 3000);
+  thinkAndSpeak("需要幫忙嗎？我是您的購物小助理 擺擺！🦊", 'idle', 3000);
 };
 
 // 監控路由變化：自動打招呼
@@ -208,7 +224,7 @@ const startIdleTips = () => {
 onMounted(() => {
   // 初次進場歡迎
   if (route.path === '/') {
-    setTimeout(() => thinkAndSpeak("哈囉！我是 Foxy 🦊，今天由我來陪您逛街，有任何問題隨時點我喔！✨", 'idle', 5000), 2500);
+    setTimeout(() => thinkAndSpeak("哈囉！我是 擺擺 🦊，今天由我來陪您逛街，有任何問題隨時點我喔！✨", 'idle', 5000), 2500);
   }
   startIdleTips();
 });
@@ -228,24 +244,74 @@ onUnmounted(() => {
 }
 
 /* Default / Mobile / Floating Mode */
-.assistant-container:not(.in-header) {
+.assistant-container:not(.in-header):not(.is-stationed) {
   position: fixed;
   bottom: 20px;
   left: 20px;
 }
 
-.assistant-container:not(.in-header) .speech-bubble {
+/* Stationed Mode (For embedding in pages) */
+.assistant-container.is-stationed {
+  position: relative;
+  width: 100%;
+  flex-direction: row; /* Normal row: Mascot then Bubble */
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.assistant-container.is-stationed .speech-bubble {
+  margin: 0;
+  max-width: 400px;
+  flex: 1;
+}
+
+.assistant-container.is-stationed .bubble-arrow {
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 8px 8px 8px 0;
+  border-color: transparent white transparent transparent;
+}
+
+.assistant-container.is-stationed .moki-mascot,
+.assistant-container.is-stationed .baibai-mascot {
+  animation: none; /* No floating when stationed */
+  flex-shrink: 0;
+}
+
+/* Hand-drawn Sketch Style for Stationed Moki/Baibai */
+.assistant-container.is-stationed .mascot-image {
+  background-color: #fff;
+  filter: url(#shaky-pencil) grayscale(1) contrast(5) brightness(1.1) sepia(0.2);
+  mix-blend-mode: multiply;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; /* Slightly irregular edges */
+  transition: all 0.5s ease;
+  transform: scale(1.1); /* Slightly larger when stationed */
+}
+
+.assistant-container.is-stationed .mascot-image:hover {
+  filter: url(#shaky-pencil) grayscale(1) contrast(6) brightness(1.2) sepia(0.2);
+  transform: scale(1.15);
+}
+
+.assistant-container.is-stationed .mascot-image::before,
+.assistant-container.is-stationed .mascot-image::after {
+  filter: grayscale(1) brightness(0.8) contrast(2);
+}
+
+.assistant-container:not(.in-header):not(.is-stationed) .speech-bubble {
   margin-bottom: 10px;
 }
 
-.assistant-container:not(.in-header) .bubble-arrow {
+.assistant-container:not(.in-header):not(.is-stationed) .bubble-arrow {
   bottom: -8px;
   left: 20px;
   border-width: 8px 8px 0 8px;
   border-color: white transparent transparent transparent;
 }
 
-.assistant-container:not(.in-header) .foxy-mascot {
+.assistant-container:not(.in-header):not(.is-stationed) .moki-mascot {
   animation: float 3s ease-in-out infinite;
 }
 
@@ -255,7 +321,7 @@ onUnmounted(() => {
   flex-direction: column-reverse; /* Bubble pops down */
 }
 
-.assistant-container.in-header .foxy-mascot {
+.assistant-container.in-header .baibai-mascot {
   width: 50px; /* Smaller for header */
   height: 50px;
   animation: none; /* No floating in header */
@@ -276,20 +342,36 @@ onUnmounted(() => {
   border-color: transparent transparent white transparent;
 }
 
-/* General Styles */
-.foxy-mascot {
-  width: 100px;
-  height: 100px;
+.baibai-mascot {
+  width: 80px;
+  height: 80px;
+  position: relative;
   cursor: pointer;
+  z-index: 10;
+  animation: float 3s ease-in-out infinite;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 @media (max-width: 768px) {
-  .foxy-mascot {
-    width: 70px;
-    height: 70px;
+  .baibai-mascot {
+    width: 65px;
+    height: 65px;
   }
+}
+
+.sketch-paper {
+  background-color: #fcfaf2;
+  background-image: 
+    radial-gradient(#e1dec9 1px, transparent 0),
+    linear-gradient(to right, rgba(200, 200, 200, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(200, 200, 200, 0.1) 1px, transparent 1px);
+  background-size: 3px 3px, 20px 20px, 20px 20px; /* Grain + subtle grid */
+  border: 1px solid #dcd8c0 !important;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.02);
+  padding-top: 2.5rem !important;
 }
 
 .mascot-image {
@@ -299,6 +381,46 @@ onUnmounted(() => {
   background-size: 200% 200%;
   border-radius: 12px;
   transition: background-position 0.3s ease-in-out;
+  position: relative;
+}
+
+/* Librarian Overlay (Glasses) */
+.is-librarian .mascot-image::before {
+  content: "👓";
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.2rem;
+  z-index: 5;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  pointer-events: none;
+  animation: adjust-glasses 4s infinite ease-in-out;
+}
+
+@keyframes adjust-glasses {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  50% { transform: translate(-50%, -52%) rotate(2deg); }
+}
+
+/* Librarian Badge/Vest Hint */
+.is-librarian .mascot-image::after {
+  content: "📚";
+  position: absolute;
+  bottom: 0px;
+  right: -5px;
+  font-size: 1.5rem;
+  z-index: 6;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.processing.is-librarian .mascot-image::before {
+  animation: search-glasses 1s infinite alternate;
+}
+
+@keyframes search-glasses {
+  from { filter: brightness(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+  to { filter: brightness(1.3) drop-shadow(0 0 8px var(--bs-primary)); }
 }
 
 .speech-bubble {
@@ -310,10 +432,14 @@ onUnmounted(() => {
   color: #333;
   box-shadow: 0 6px 15px rgba(0,0,0,0.15);
   position: relative;
-  border: 2px solid #ff6b35;
-  white-space: normal;
   z-index: 10000;
   max-width: 250px;
+  transition: all 0.3s ease;
+}
+
+.is-librarian .speech-bubble {
+  border-color: var(--bs-primary);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 @media (max-width: 768px) {
@@ -349,12 +475,12 @@ onUnmounted(() => {
   100% { opacity: 1; transform: scale(1); }
 }
 
-.processing .foxy-mascot {
+.processing .baibai-mascot {
   animation: pulse 1s infinite alternate !important;
 }
 
 @keyframes pulse {
-  from { transform: scale(1); }
-  to { transform: scale(1.1); }
+  from { transform: scale(1) translateZ(0); }
+  to { transform: scale(1.05) translateZ(0); }
 }
 </style>

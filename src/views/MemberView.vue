@@ -270,24 +270,24 @@
               </div>
             </div>
             
-            <!-- 預設地址卡片 -->
-            <div class="col">
-              <div class="card h-100 amazon-address-card rounded-4 shadow-sm border-light">
+            <!-- 動態顯示地址列表 -->
+            <div v-for="(addr, index) in addresses" :key="addr.id" class="col">
+              <div class="card h-100 amazon-address-card rounded-4 shadow-sm border-light position-relative">
                 <div class="card-header bg-transparent border-bottom border-light py-3 d-flex align-items-center">
-                  <span class="text-muted small me-2">預設：</span>
-                  <strong class="fs-6 text-dark">amazon</strong>
+                  <span v-if="addr.isDefault" class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle py-1 px-3 me-2">預設地址</span>
+                  <span v-else @click="setDefaultAddress(index)" class="badge rounded-pill bg-light text-secondary border py-1 px-3 me-2 cursor-pointer hover-primary">設為預設</span>
+                  <strong class="fs-6 text-dark ms-auto">{{ addr.company || '個人地址' }}</strong>
                 </div>
                 <div class="card-body py-3">
-                  <h6 class="fw-bold mb-2 text-dark">Teng, shih-chieh</h6>
-                  <p class="mb-1 small text-secondary">No. 41, Hexing St.</p>
-                  <p class="mb-1 small text-secondary">Miaoli City, Miaoli County 360</p>
-                  <p class="mb-1 small text-secondary">臺灣</p>
-                  <p class="mb-0 small text-secondary mt-2">電話號碼: 0968911231</p>
+                  <h6 class="fw-bold mb-2 text-dark">{{ addr.lastName }} {{ addr.firstName }}</h6>
+                  <p class="mb-1 small text-secondary">{{ addr.address }}</p>
+                  <p class="mb-1 small text-secondary">{{ addr.city }}, {{ addr.zip }}</p>
+                  <p class="mb-1 small text-secondary">{{ addr.country }}</p>
+                  <p class="mb-0 small text-secondary mt-2">電話號碼: {{ addr.phone || '0912-345-678' }}</p>
                 </div>
                 <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
-                  <a href="#" class="text-decoration-none text-primary fw-bold small">編輯</a>
-                  <span class="mx-3 text-light">|</span>
-                  <a href="#" class="text-decoration-none text-danger fw-bold small">移除</a>
+                  <a href="javascript:void(0)" class="text-decoration-none text-primary fw-bold small me-3">編輯</a>
+                  <a href="javascript:void(0)" @click="deleteAddress(index)" class="text-decoration-none text-danger fw-bold small">移除</a>
                 </div>
               </div>
             </div>
@@ -470,67 +470,75 @@
   <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content rounded-4 border-0 shadow">
-        <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
-          <h5 class="modal-title fw-bold text-dark fs-4" id="addAddressModalLabel">新增常用地址</h5>
-          <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-start p-4">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">姓氏</label>
-              <input type="text" class="form-control py-2" placeholder="請輸入姓氏">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">名字</label>
-              <input type="text" class="form-control py-2" placeholder="請輸入名字">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">公司</label>
-              <input type="text" class="form-control py-2" placeholder="請輸入公司名稱">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">郵遞區號</label>
-              <input type="text" class="form-control py-2" placeholder="例如: 100">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">所在國家</label>
-              <select class="form-select py-2">
-                <option selected>請選擇國家</option>
-                <option value="台灣">台灣</option>
-                <option value="日本">日本</option>
-                <option value="美國">美國</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">縣市</label>
-              <select class="form-select py-2">
-                <option selected>請選擇縣市</option>
-                <option value="台北市">台北市</option>
-                <option value="新北市">新北市</option>
-                <option value="台東縣">台東縣</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label text-secondary small fw-bold">詳細地址</label>
-              <input type="text" class="form-control py-2" placeholder="市區鄉鎮、街道、巷弄、門牌號碼">
-            </div>
-            <div class="col-12 mt-4">
-               <label class="form-label text-secondary small fw-bold me-3">設為預設地址：</label>
-               <div class="form-check form-check-inline">
-                 <input class="form-check-input mt-1" type="radio" name="defaultAddress" id="defaultYes" value="yes" checked>
-                 <label class="form-check-label fw-bold text-dark" for="defaultYes">是</label>
-               </div>
-               <div class="form-check form-check-inline">
-                 <input class="form-check-input mt-1" type="radio" name="defaultAddress" id="defaultNo" value="no">
-                 <label class="form-check-label fw-bold text-dark" for="defaultNo">否</label>
-               </div>
+        <v-form v-slot="{ errors }" :validation-schema="addressSchema" @submit="addAddress" @invalid-submit="onInvalidSubmit">
+          <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
+            <h5 class="modal-title fw-bold text-dark fs-4" id="addAddressModalLabel">新增常用地址</h5>
+            <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-start p-4">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">姓氏</label>
+                <v-field name="lastName" type="text" class="form-control py-2" :class="{'is-invalid': errors.lastName}" placeholder="例如：王"></v-field>
+                <error-message name="lastName" class="invalid-feedback" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">名字</label>
+                <v-field name="firstName" type="text" class="form-control py-2" :class="{'is-invalid': errors.firstName}" placeholder="例如：小明"></v-field>
+                <error-message name="firstName" class="invalid-feedback" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">公司 (選填)</label>
+                <v-field name="company" type="text" class="form-control py-2" placeholder="公司名稱"></v-field>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">郵遞區號</label>
+                <v-field name="zip" type="text" class="form-control py-2" :class="{'is-invalid': errors.zip}" placeholder="例如：100" @focus="onAddressFieldFocus('zip')"></v-field>
+                <error-message name="zip" class="invalid-feedback" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">所在國家</label>
+                <v-field name="country" as="select" class="form-select py-2" :class="{'is-invalid': errors.country}" @focus="onAddressFieldFocus('country')">
+                  <option value="" disabled>請選擇國家</option>
+                  <option value="臺灣">臺灣</option>
+                  <option value="日本">日本</option>
+                  <option value="美國">美國</option>
+                </v-field>
+                <error-message name="country" class="invalid-feedback" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">縣市</label>
+                <v-field name="city" as="select" class="form-select py-2" :class="{'is-invalid': errors.city}">
+                  <option value="" disabled>請選擇縣市</option>
+                  <option value="台北市">台北市</option>
+                  <option value="新北市">新北市</option>
+                  <option value="苗栗縣">苗栗縣</option>
+                </v-field>
+                <error-message name="city" class="invalid-feedback" />
+              </div>
+              <div class="col-12">
+                <label class="form-label text-secondary small fw-bold">詳細地址</label>
+                <v-field name="address" type="text" class="form-control py-2" :class="{'is-invalid': errors.address}" placeholder="市區鄉鎮、街道、巷弄、門牌號碼" @focus="onAddressFieldFocus('address')"></v-field>
+                <error-message name="address" class="invalid-feedback" />
+              </div>
+              <div class="col-12 mt-4">
+                 <label class="form-label text-secondary small fw-bold me-3">設為預設地址：</label>
+                 <div class="form-check form-check-inline">
+                   <v-field class="form-check-input mt-1" type="radio" name="isDefault" id="defaultYes" value="yes" checked />
+                   <label class="form-check-label fw-bold text-dark" for="defaultYes">是</label>
+                 </div>
+                 <div class="form-check form-check-inline">
+                   <v-field class="form-check-input mt-1" type="radio" name="isDefault" id="defaultNo" value="no" />
+                   <label class="form-check-label fw-bold text-dark" for="defaultNo">否</label>
+                 </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-end">
-          <button type="button" class="btn btn-light rounded-pill px-4 fw-bold shadow-none" data-bs-dismiss="modal">取消</button>
-          <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold text-white borderSet shadow-none" data-bs-dismiss="modal">儲存地址</button>
-        </div>
+          <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+            <button type="button" class="btn btn-light rounded-pill px-4 fw-bold shadow-none" data-bs-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold text-white borderSet shadow-none">儲存並新增</button>
+          </div>
+        </v-form>
       </div>
     </div>
   </div>
@@ -573,6 +581,12 @@
 .amazon-add-card:hover {
   background-color: #f8f9fa;
   border-color: #adb5bd;
+}
+
+.hover-primary:hover {
+  background-color: var(--bs-primary) !important;
+  color: white !important;
+  border-color: var(--bs-primary) !important;
 }
 
 /* 隱藏原生捲軸但保留滾動功能 */
@@ -636,21 +650,82 @@ export default {
         firstName: 'required',
         email: 'required|email',
         phone: 'required|digits:10'
-      }
+      },
+      addressSchema: {
+        lastName: 'required',
+        firstName: 'required',
+        zip: 'required|digits:3',
+        country: 'required',
+        city: 'required',
+        address: 'required'
+      },
+      addresses: [
+        {
+          id: 1,
+          lastName: 'Teng',
+          firstName: 'shih-chieh',
+          company: 'amazon',
+          zip: '360',
+          country: '臺灣',
+          city: '苗栗縣',
+          address: 'Miaoli City, No. 41, Hexing St.',
+          phone: '0968911231',
+          isDefault: true
+        }
+      ]
     };
   },
   methods: {
     onSubmit(values) {
       console.log('Form Submitted:', values);
-      this.store.showAssistantMessage("資料儲存成功！我已經幫您記在大腦裡囉！🦊✨", 'success', 5000);
+      this.store.showAssistantMessage("資料儲存成功！我已經幫您記在 擺擺 的大腦裡囉！🦊✨", 'success', 5000);
     },
     onInvalidSubmit({ errors }) {
       const firstError = Object.values(errors)[0];
       this.store.showAssistantMessage(`哎呀！資料填寫有誤喔：${firstError} 🦊📝`, 'error', 5000);
     },
+    onAddressFieldFocus(fieldName) {
+      const tips = {
+        'zip': '郵遞區號填寫正確，能讓我們更快把包裹送到您手中喔！🦊🚚',
+        'address': '請填寫詳細的巷弄門牌，以免物流司機找不到路喔！🦊台',
+        'country': '目前我們支援多國配送，請選擇您的收件國別。🦊島'
+      };
+      if (tips[fieldName]) {
+        this.store.showAssistantMessage(tips[fieldName], 'processing', 5000);
+      }
+    },
+    addAddress(values, { resetForm }) {
+      const newAddr = {
+        id: Date.now(),
+        ...values,
+        isDefault: values.isDefault === 'yes'
+      };
+      
+      if (newAddr.isDefault) {
+        this.addresses.forEach(a => a.isDefault = false);
+      }
+      
+      this.addresses.push(newAddr);
+      resetForm();
+      
+      // 關閉 Modal (手動觸發 BS 關閉，因為 VForm submit 不會自動關閉 modal)
+      const modalEl = document.getElementById('addAddressModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      
+      this.store.showAssistantMessage("地址新增成功！下次結帳就能直接點選囉！🦊📬✨", 'success', 5000);
+    },
+    deleteAddress(index) {
+      this.addresses.splice(index, 1);
+      this.store.showAssistantMessage("已移除該地址。🦊🗑️", 'idle', 3000);
+    },
+    setDefaultAddress(index) {
+      this.addresses.forEach((a, i) => a.isDefault = (i === index));
+      this.store.showAssistantMessage("已設定為預設收件地址！🦊⭐", 'success', 3000);
+    },
     mounted() {
       setTimeout(() => {
-        this.store.showAssistantMessage("這裡是個人資料設定，請務必填寫正確，方便後續配送喔！🦊📬", 'idle', 5000);
+        this.store.showAssistantMessage("這裡是個人資料設定，我是 擺擺，請務必填寫正確，方便後續配送喔！🦊📬", 'idle', 5000);
       }, 1000);
     },
     openProductModal(product) {

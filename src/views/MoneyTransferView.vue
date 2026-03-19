@@ -45,59 +45,69 @@
           <span class="text-secondary small fw-bold">{{ tabSubtitle }}</span>
         </div>
 
-        <!-- 搜尋區域 (僅在搜尋分頁顯示，照抄 OrderView) -->
-        <div v-if="activeTab === 'search'" class="animate-fade-in mb-5">
-           <div class="row g-4 border rounded-4 p-4 bg-light mx-0 mb-4">
-             <div class="col-12 border-bottom border-light pb-2 mb-2">
-                 <h6 class="fw-bold text-primary mb-0"><i class="bi bi-search me-2"></i>基本條件</h6>
+        <!-- 搜尋區域 (智慧圖書館主題 - 擺擺 坐鎮版) -->
+        <div v-if="activeTab === 'search'" class="animate-fade-in mb-5 text-start">
+           <!-- 擺擺 駐守標頭 - 極簡手繪版 -->
+           <div class="mb-5 p-4 rounded-4 bg-glass border border-white position-relative overflow-hidden shadow-sm sketch-paper">
+             <AssistantAgent isStationed />
+             <!-- 裝飾背景 -->
+             <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 rotate-15 d-none d-md-block" style="font-size: 5rem !important;">📖</div>
+           </div>
+
+           <div class="row g-4 border border-white rounded-4 p-4 bg-glass mx-0 mb-4 shadow-sm position-relative overflow-hidden">
+             <!-- 背景細微裝飾 -->
+             <div class="position-absolute top-0 end-0 p-3 opacity-10 fs-1 rotate-15 d-none d-md-block">📖</div>
+
+             <div class="col-12 border-bottom border-light pb-2 mb-2 text-start">
+                  <h6 class="fw-bold text-dark mb-0"><i class="bi bi-journal-check me-2 text-primary"></i>檢索編號</h6>
              </div>
              
              <!-- 訂單編號 -->
              <div class="col-md-6 text-start">
-               <label class="form-label text-secondary small fw-bold">訂單編號</label>
-               <input type="text" v-model="searchQuery" class="form-control border-0 py-2 shadow-sm rounded-3" placeholder="輸入訂單編號 (例如: ORD-001)">
+               <label class="form-label text-secondary small fw-bold">訂單編號 (索引號)</label>
+               <input type="text" v-model="searchQuery" class="form-control border-white py-2 bg-white-50 shadow-none rounded-3" placeholder="例如: ORD-001">
              </div>
              
              <!-- 商品名稱 -->
              <div class="col-md-6 text-start">
-               <label class="form-label text-secondary small fw-bold">商品名稱</label>
-               <input type="text" class="form-control border-0 py-2 shadow-sm rounded-3" placeholder="輸入商品名稱關鍵字">
+               <label class="form-label text-secondary small fw-bold">商品名稱 (關鍵字)</label>
+               <input type="text" class="form-control border-white py-2 bg-white-50 shadow-none rounded-3" placeholder="關鍵字...">
              </div>
              
              <!-- 訂貨日期 -->
              <div class="col-md-6 text-start">
-               <label class="form-label text-secondary small fw-bold">訂貨開始日期</label>
-               <input type="date" class="form-control border-0 py-2 shadow-sm rounded-3">
+               <label class="form-label text-secondary small fw-bold">起始檢索日期</label>
+               <input type="date" class="form-control border-white py-2 bg-white-50 shadow-none rounded-3">
              </div>
              <div class="col-md-6 text-start">
-               <label class="form-label text-secondary small fw-bold">訂貨結束日期</label>
-               <input type="date" class="form-control border-0 py-2 shadow-sm rounded-3">
+               <label class="form-label text-secondary small fw-bold">結束檢索日期</label>
+               <input type="date" class="form-control border-white py-2 bg-white-50 shadow-none rounded-3">
              </div>
            </div>
 
            <!-- 進階條件 -->
            <h6 class="fw-bold border-bottom border-light pb-2 mb-4 text-dark d-flex align-items-center text-start">
-               <i class="bi bi-sliders me-2 text-secondary"></i> 進階條件
+               <i class="bi bi-layers me-2 text-secondary"></i> 進階調閱條件
            </h6>
-           <div class="bg-white p-4 rounded-4 border text-start">
+           <div class="bg-glass-dark p-4 rounded-4 border border-white text-start">
                <div class="form-check form-check-inline me-4 mb-3 mb-md-0">
-                 <input class="form-check-input bg-light border-secondary" type="checkbox" id="outofstockCheck">
+                 <input class="form-check-input border-secondary" type="checkbox" id="outofstockCheck">
                  <label class="form-check-label text-dark fw-bold" for="outofstockCheck">
                    包含已斷貨商品
                  </label>
                </div>
                <div class="form-check form-check-inline">
-                 <input class="form-check-input bg-light border-secondary" type="checkbox" id="onlyMatchCheck" checked>
+                 <input class="form-check-input border-secondary" type="checkbox" id="onlyMatchCheck" checked>
                  <label class="form-check-label text-dark fw-bold" for="onlyMatchCheck">
-                   只顯示完全符合的商品
+                   精確檢索 (完全符合)
                  </label>
                </div>
            </div>
            
            <div class="d-flex justify-content-end mt-4 gap-3">
-             <button @click="searchQuery = ''" class="btn btn-light px-4 py-2 fw-bold text-dark rounded-pill border shadow-none">清除重填</button>
-             <button class="btn btn-primary px-5 py-2 fw-bold borderSet rounded-pill border-primary shadow-none">
-                <i class="bi bi-search me-2"></i> 開始搜尋
+             <button @click="searchQuery = ''" class="btn btn-outline-secondary px-4 py-2 fw-bold rounded-pill shadow-none">重置檢索</button>
+             <button class="btn btn-primary px-5 py-2 fw-bold borderSet rounded-pill shadow-none">
+                <i class="bi bi-search me-2"></i> 開始調閱紀錄
              </button>
            </div>
         </div>
@@ -275,9 +285,13 @@
 <script>
 import * as bootstrap from 'bootstrap';
 import { store } from '../store.js';
+import AssistantAgent from '../components/AssistantAgent.vue';
 
 export default {
   name: 'MoneyTransferView',
+  components: {
+    AssistantAgent
+  },
   data() {
     return {
       store,
@@ -347,6 +361,20 @@ export default {
         this.reportForm = { lastFiveDigits: '', amount: 0, date: new Date().toISOString().split('T')[0], note: '' };
       }
     }
+  },
+  watch: {
+    activeTab(newTab) {
+      if (newTab === 'search') {
+        setTimeout(() => {
+          this.store.showAssistantMessage("管理員 擺擺 已就位！👓📚 請輸入關鍵字，我將為您翻閱卷宗...", 'processing', 6000);
+        }, 800);
+      }
+    }
+  },
+  mounted() {
+    setTimeout(() => {
+      this.store.showAssistantMessage("主人！匯款後記得在這裡回報 5 碼喔，這樣我才能趕快幫您調閱資料！擺擺 👓📚", 'idle', 6000);
+    }, 1500);
   }
 };
 </script>
@@ -360,9 +388,24 @@ export default {
 .scroll-hidden::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 4px; }
 
 .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-.animate-slide-up { animation: slideUp 0.4s ease-out; }
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.sketch-paper {
+  background-color: #fcfaf2 !important;
+  background-image:
+    radial-gradient(#e1dec9 1px, transparent 0),
+    linear-gradient(to right, rgba(200, 200, 200, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(200, 200, 200, 0.1) 1px, transparent 1px) !important;
+  background-size: 3px 3px, 20px 20px, 20px 20px !important;
+  border: 1px solid #dcd8c0 !important;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.02) !important;
+  padding-top: 2.5rem !important;
+}
+
+@keyframes fadeIn {
+ from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
 /* 輸入框美化 (同步 OrderView) */
@@ -382,4 +425,40 @@ export default {
 
 .table th { font-weight: 600; background-color: #f8f9fa; border-bottom-width: 1px; }
 .letter-spacing-1 { letter-spacing: 1px; }
+
+/* Glassmorphism Library Theme (Sync with OrderView) */
+.bg-glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.bg-glass-dark {
+  background: rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.librarian-station-bg {
+  width: 60px;
+  height: 60px;
+  background: var(--bs-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  border-radius: 18px;
+  transform: rotate(-10deg);
+  box-shadow: 4px 4px 15px rgba(0,0,0,0.1);
+}
+
+.rotate-15 {
+  transform: rotate(15deg);
+}
+
+.bg-white-50 {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
 </style>

@@ -14,6 +14,7 @@ export const store = reactive({
     email: 'lin@example.com',
     phone: '0912345678',
     provider: 'line',
+    avatar: 'https://i.pravatar.cc/150?u=antigravity',
     address: '台東縣鹿野鄉中華路三段 123 號'
   },
   isSidebarCollapsed: false, // 側邊欄收折狀態 (僅限電腦版)
