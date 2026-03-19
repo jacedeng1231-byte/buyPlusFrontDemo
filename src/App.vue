@@ -104,6 +104,13 @@ export default {
       this.mobileMenu = new Offcanvas(el);
     }
   },
+  watch: {
+    'store.isMobileMenuOpen'(newVal) {
+      if (newVal && this.mobileMenu) {
+        this.mobileMenu.show();
+      }
+    }
+  },
   methods: {
     toggleMobileMenu() {
       if (this.mobileMenu) {

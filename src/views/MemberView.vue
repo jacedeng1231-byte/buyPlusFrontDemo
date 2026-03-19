@@ -94,71 +94,78 @@
            </div>
 
           <h6 class="fw-bold mb-4 pb-2 border-bottom border-light text-dark fs-5">個人資料</h6>
-          <div class="row g-3 mb-4 text-start">
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">姓氏</label>
-              <input type="text" class="form-control py-2" placeholder="姓" value="林">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">名字</label>
-              <input type="text" class="form-control py-2" placeholder="名" value="玉珊">
-            </div>
-            <div class="col-12">
-              <label class="form-label text-secondary small fw-bold">電子郵件</label>
-              <input type="email" class="form-control py-2" placeholder="name@example.com" value="lin@example.com">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">手機號碼</label>
-              <input type="tel" class="form-control py-2" placeholder="09XX-XXX-XXX" value="0912345678">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">傳真電話</label>
-              <input type="tel" class="form-control py-2" placeholder="區碼-號碼">
-            </div>
-          </div>
-
-          <h6 class="fw-bold mt-5 mb-4 pb-2 border-bottom border-light text-dark fs-5">預設配送及付款</h6>
-          <div class="row g-3 mb-4 text-start">
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">配送方式</label>
-              <select class="form-select py-2">
-                <option selected>7-11</option>
-                <option value="1">宅配</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">付款方式</label>
-              <select class="form-select py-2">
-                <option selected>貨到付款</option>
-                <option value="1">刷卡</option>
-                <option value="2">轉</option>
-              </select>
-            </div>
-          </div>
-
-          <h6 class="fw-bold mt-5 mb-4 pb-2 border-bottom border-light text-dark fs-5">預設地址</h6>
-          <div class="row g-3 mb-4 text-start">
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">所在國家</label>
-              <select class="form-select py-2">
-                <option selected>台灣</option>
-                <option value="1">日本</option>
-                <option value="2">美國</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-secondary small fw-bold">縣市</label>
-              <select class="form-select py-2">
-                <option selected>台東縣</option>
-                <option value="1">台北市</option>
-                <option value="2">高雄市</option>
-              </select>
-            </div>
-          </div>
           
-          <div class="d-flex justify-content-end">
-            <button class="btn btn-primary px-4 py-2 rounded-pill fw-bold borderSet shadow-none">儲存變更</button>
-          </div>
+          <VForm @submit="onSubmit" @invalid-submit="onInvalidSubmit" v-slot="{ errors }">
+            <div class="row g-3 mb-4 text-start">
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">姓氏</label>
+                <VField name="lastName" rules="required" v-model="store.user.lastName" class="form-control py-2" :class="{ 'is-invalid': errors.lastName }" placeholder="姓" />
+                <ErrorMessage name="lastName" class="invalid-feedback du-block" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">名字</label>
+                <VField name="firstName" rules="required" v-model="store.user.firstName" class="form-control py-2" :class="{ 'is-invalid': errors.firstName }" placeholder="名" />
+                <ErrorMessage name="firstName" class="invalid-feedback d-block" />
+              </div>
+              <div class="col-12">
+                <label class="form-label text-secondary small fw-bold">電子郵件</label>
+                <VField name="email" rules="required|email" v-model="store.user.email" class="form-control py-2" :class="{ 'is-invalid': errors.email }" placeholder="name@example.com" />
+                <ErrorMessage name="email" class="invalid-feedback d-block" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">手機號碼</label>
+                <VField name="phone" rules="required|digits:10" v-model="store.user.phone" class="form-control py-2" :class="{ 'is-invalid': errors.phone }" placeholder="09XX-XXX-XXX" />
+                <ErrorMessage name="phone" class="invalid-feedback d-block" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">傳真電話</label>
+                <input type="tel" class="form-control py-2" placeholder="區碼-號碼">
+              </div>
+            </div>
+
+            <h6 class="fw-bold mt-5 mb-4 pb-2 border-bottom border-light text-dark fs-5">預設配送及付款</h6>
+            <div class="row g-3 mb-4 text-start">
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">配送方式</label>
+                <select class="form-select py-2">
+                  <option selected>7-11</option>
+                  <option value="1">宅配</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">付款方式</label>
+                <select class="form-select py-2">
+                  <option selected>貨到付款</option>
+                  <option value="1">刷卡</option>
+                  <option value="2">轉</option>
+                </select>
+              </div>
+            </div>
+
+            <h6 class="fw-bold mt-5 mb-4 pb-2 border-bottom border-light text-dark fs-5">預設地址</h6>
+            <div class="row g-3 mb-4 text-start">
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">所在國家</label>
+                <select class="form-select py-2">
+                  <option selected>台灣</option>
+                  <option value="1">日本</option>
+                  <option value="2">美國</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary small fw-bold">縣市</label>
+                <select class="form-select py-2">
+                  <option selected>台東縣</option>
+                  <option value="1">台北市</option>
+                  <option value="2">高雄市</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-bold borderSet shadow-none">儲存變更</button>
+            </div>
+          </VForm>
         </div>
 
         <!-- 2. 我的收藏 -->
@@ -592,18 +599,60 @@
 <script>
 import * as bootstrap from 'bootstrap';
 import { store } from '../store.js';
+import { Form, Field, ErrorMessage, defineRule, configure } from 'vee-validate';
+import { required, email, digits } from '@vee-validate/rules';
+import { localize, setLocale } from '@vee-validate/i18n';
+import zh_TW from '@vee-validate/i18n/dist/locale/zh_TW.json';
+
+// 1. Define Rules
+defineRule('required', required);
+defineRule('email', email);
+defineRule('digits', digits);
+
+// 2. Configure i18n
+configure({
+  generateMessage: localize({
+    zh_TW,
+  }),
+  validateOnInput: true,
+});
+setLocale('zh_TW');
 
 export default {
   name: 'MemberView',
+  components: {
+    VForm: Form,
+    VField: Field,
+    ErrorMessage
+  },
   data() {
     return {
       store,
       selectedProduct: null,
       productQuantity: 1,
-      productModal: null
+      productModal: null,
+      schema: {
+        lastName: 'required',
+        firstName: 'required',
+        email: 'required|email',
+        phone: 'required|digits:10'
+      }
     };
   },
   methods: {
+    onSubmit(values) {
+      console.log('Form Submitted:', values);
+      this.store.showAssistantMessage("資料儲存成功！我已經幫您記在大腦裡囉！🦊✨", 'success', 5000);
+    },
+    onInvalidSubmit({ errors }) {
+      const firstError = Object.values(errors)[0];
+      this.store.showAssistantMessage(`哎呀！資料填寫有誤喔：${firstError} 🦊📝`, 'error', 5000);
+    },
+    mounted() {
+      setTimeout(() => {
+        this.store.showAssistantMessage("這裡是個人資料設定，請務必填寫正確，方便後續配送喔！🦊📬", 'idle', 5000);
+      }, 1000);
+    },
     openProductModal(product) {
       this.selectedProduct = product;
       this.productQuantity = 1;

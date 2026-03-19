@@ -16,7 +16,7 @@
           style="white-space: nowrap"
         >
           <span class="me-5"
-            >🎉 慶祝新版上線，結帳輸入【BUYPLUS2026】即享全館 9 折優惠！</span
+            >🎉 慶祝新版上線，結帳輸入 <span class="text-warning fw-bolder">【BUYPLUS2026】</span> 即享全館 <span class="bg-white text-primary px-2 rounded-pill mx-1">9 折</span> 優惠！</span
           >
           <span
             >⚠️ 提醒：本週五適逢連假停止出貨，有急用的客人請提早下單喔。</span
@@ -161,7 +161,10 @@
       <div class="col-12 col-md-4 col-xl-3 d-flex flex-column h-md-100 mb-2 mb-md-0" :style="isMobile ? 'height: auto;' : ''">
         <div class="d-flex flex-md-column justify-content-md-between gap-2 overflow-auto overflow-x-hidden pb-2 scroll-hide h-md-100 shadow-none border-0">
           <div v-for="(p, index) in hotPicks.slice(0, 3)" :key="p.id" class="flex-shrink-0" :style="isMobile ? 'width: 110px;' : 'width: 100%;'">
-            <div class="card border-0 shadow-sm rounded-4 overflow-visible bg-white border borderSet-light h-auto position-relative">
+            <div 
+              @click="openProductModal(p)"
+              class="card border-0 shadow-sm rounded-4 overflow-visible bg-white border borderSet-light h-auto position-relative cursor-pointer hover-lift"
+            >
               <!-- 排名獎牌 (浮誇發光版) -->
               <div class="position-absolute bottom-0 end-0 z-3">
                 <div class="medal-badge d-flex align-items-center justify-content-center shadow-sm medal-glow" :class="'medal-' + (index + 1)">
@@ -254,6 +257,87 @@
         </div>
       </div>
     </div>
+
+    <!-- 商品詳情彈窗 (Premium Modal) -->
+    <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true" ref="productModal">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
+        <div class="modal-content border-0 rounded-4 overflow-hidden shadow-lg" v-if="selectedProduct">
+          <!-- 關閉按鈕 -->
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-3 z-3 bg-white rounded-circle p-2 shadow-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+          
+          <div class="modal-body p-0 text-start">
+            <div class="row g-0">
+              <!-- 左側：大圖 -->
+              <div class="col-md-6 border-end bg-light">
+                <div class="ratio ratio-1x1 h-100">
+                  <img :src="selectedProduct.image" class="object-fit-cover w-100 h-100" :alt="selectedProduct.name">
+                </div>
+              </div>
+              
+              <!-- 右側：資訊與操作 -->
+              <div class="col-md-6 p-4 d-flex flex-column h-100">
+                <div class="mb-4">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 mb-2">熱銷精選</span>
+                      <h3 class="fw-bold text-dark mb-2">{{ selectedProduct.name }}</h3>
+                    </div>
+                    <button 
+                      @click="store.toggleFavorite(selectedProduct)"
+                      class="btn btn-light rounded-circle shadow-sm border border-light"
+                      :class="{ 'text-danger': store.isFavorite(selectedProduct.id) }"
+                    >
+                      <i class="bi" :class="store.isFavorite(selectedProduct.id) ? 'bi-heart-fill' : 'bi-heart'"></i>
+                    </button>
+                  </div>
+                  <div class="d-flex align-items-baseline gap-2 mb-3">
+                    <span class="fs-2 fw-bolder text-danger">${{ selectedProduct.price.toLocaleString() }}</span>
+                    <span class="text-muted text-decoration-line-through small">${{ (selectedProduct.price * 1.2).toFixed(0) }}</span>
+                  </div>
+                </div>
+
+                <!-- 簡介 -->
+                <div class="mb-4 p-3 rounded-4 bg-light border border-light">
+                  <h6 class="fw-bold text-dark mb-2 small"><i class="bi bi-info-circle me-1"></i> 商品特點</h6>
+                  <ul class="text-secondary small mb-0 ps-3" style="line-height: 1.6;">
+                    <li>嚴選高品質材質，舒適耐穿。</li>
+                    <li>精緻車工與品牌獨家打版。</li>
+                    <li>百搭基本款，輕鬆穿出個人風格。</li>
+                  </ul>
+                </div>
+
+                <!-- 數量選擇 -->
+                <div class="mb-4 pt-3 border-top">
+                  <label class="form-label small fw-bold text-secondary mb-3">選擇數量：</label>
+                  <div class="row g-3">
+                    <div class="col-5">
+                      <div class="input-group border rounded-pill overflow-hidden bg-light">
+                        <button @click="productQuantity > 1 && productQuantity--" class="btn btn-light border-0 px-2 shadow-none"><i class="bi bi-dash"></i></button>
+                        <input type="text" class="form-control border-0 bg-transparent text-center fw-bold shadow-none p-0" v-model.number="productQuantity">
+                        <button @click="productQuantity++" class="btn btn-light border-0 px-2 shadow-none"><i class="bi bi-plus"></i></button>
+                      </div>
+                    </div>
+                    <div class="col-7">
+                      <button 
+                        @click="addToCartFromModal"
+                        class="btn btn-primary w-100 h-100 rounded-pill fw-bold borderSet shadow-sm transition-all"
+                      >
+                        <i class="bi bi-cart-plus me-2"></i> 加入購物車
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 小提示 -->
+                <div class="mt-auto pt-3 border-top text-center">
+                  <span class="text-muted smaller"><i class="bi bi-shield-check me-1"></i> 擺擺嚴選 ‧ 售後保固 ‧ 快速出貨</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -265,6 +349,9 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
+import { store } from '../store.js';
+import { Modal } from 'bootstrap';
+
 export default {
   name: "HomeView",
   components: {
@@ -273,7 +360,11 @@ export default {
   },
   data() {
     return {
-      isMobile: window.innerWidth < 768
+      store,
+      isMobile: window.innerWidth < 768,
+      selectedProduct: null,
+      productQuantity: 1,
+      bsModal: null
     };
   },
   setup() {
@@ -298,12 +389,56 @@ export default {
   methods: {
     updateIsMobile() {
       this.isMobile = window.innerWidth < 768;
+    },
+    openProductModal(product) {
+      this.selectedProduct = product;
+      this.productQuantity = 1;
+      
+      this.$nextTick(() => {
+        if (!this.bsModal) {
+          const el = document.getElementById('productDetailModal');
+          if (el) this.bsModal = new Modal(el);
+        }
+        if (this.bsModal) this.bsModal.show();
+      });
+
+      // 觸發小助手
+      this.store.showAssistantMessage(`這款「${product.name}」目前超熱賣的喔！需要幫您幫放入購物車嗎？🦊💎`, 'success', 6000);
+    },
+    addToCartFromModal() {
+      if (!this.selectedProduct) return;
+      
+      // 模擬加入購物車
+      for(let i=0; i<this.productQuantity; i++) {
+        this.store.addToCart(this.selectedProduct);
+      }
+      
+      // 觸發動畫
+      this.store.triggerAnimation(this.selectedProduct.image, 'global-cart-icon');
+      
+      // 關閉 Modal
+      if (this.bsModal) this.bsModal.hide();
+      
+      // 小助手提示
+      this.store.showAssistantMessage(`太棒了！已將 ${this.productQuantity} 件「${this.selectedProduct.name}」加入購物車囉！🦊🛒`, 'success', 5000);
     }
   }
 };
 </script>
 
 <style scoped>
+.cursor-pointer { cursor: pointer; }
+.hover-lift { 
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  z-index: 10;
+}
+
+.smaller { font-size: 0.75rem; }
+
 /* ======== 第一部分：排版與 Banner ======== */
 .swiper-wrapper-box {
   width: 100%;

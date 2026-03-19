@@ -128,7 +128,7 @@
             <!-- 左欄：結帳資訊 -->
             <div class="col-lg-7">
               <!-- 配送方式 -->
-              <div class="bg-white p-4 rounded-4 border shadow-sm mb-4">
+              <div class="bg-white p-4 rounded-4 border shadow-sm mb-4 text-start">
                 <h5 class="fw-bold mb-4 d-flex align-items-center">
                   <i class="bi bi-truck me-2 text-primary"></i> 配送資訊
                 </h5>
@@ -147,7 +147,7 @@
               </div>
 
               <!-- 付款方式 -->
-              <div class="bg-white p-4 rounded-4 border shadow-sm mb-4">
+              <div class="bg-white p-4 rounded-4 border shadow-sm mb-4 text-start">
                 <h5 class="fw-bold mb-4 d-flex align-items-center">
                   <i class="bi bi-credit-card me-2 text-primary"></i> 付款方式
                 </h5>
@@ -163,7 +163,7 @@
               </div>
 
               <!-- 備註 -->
-              <div class="bg-white p-4 rounded-4 border shadow-sm mb-4">
+              <div class="bg-white p-4 rounded-4 border shadow-sm mb-4 text-start">
                 <h5 class="fw-bold mb-3 d-flex align-items-center">
                   <i class="bi bi-chat-dots me-2 text-primary"></i> 給店家的話
                 </h5>
@@ -176,8 +176,37 @@
               <div class="bg-light p-4 rounded-4 border sticky-top shadow-sm" style="top: 100px;">
                 <h5 class="fw-bold mb-4 border-bottom pb-3 text-dark">訂單摘要</h5>
                 
+                <!-- 優惠碼輸入區 (Moved here) -->
+                <div class="mb-4 p-3 bg-white rounded-4 border borderSet-light text-start shadow-sm">
+                  <label class="form-label small fw-bold text-secondary mb-2">我有優惠碼</label>
+                  <div class="input-group input-group-sm">
+                    <input 
+                      type="text" 
+                      v-model="couponCode"
+                      @focus="onCouponFocus"
+                      class="form-control border shadow-none px-3 py-2 rounded-pill-start bg-light" 
+                      placeholder="輸入代碼..."
+                      :disabled="store.coupon.isApplied"
+                    >
+                    <button 
+                      v-if="!store.coupon.isApplied"
+                      @click="handleApplyCoupon"
+                      class="btn btn-primary rounded-pill-end px-3 fw-bold"
+                      :disabled="!couponCode"
+                    >使用</button>
+                    <button 
+                      v-else
+                      @click="handleRemoveCoupon"
+                      class="btn btn-outline-danger rounded-pill-end px-3 fw-bold"
+                    >移除</button>
+                  </div>
+                  <div v-if="store.coupon.isApplied" class="mt-2 text-success x-small fw-bold animate-fade-in">
+                    <i class="bi bi-check-circle-fill me-1"></i> 已套用 9 折惠碼
+                  </div>
+                </div>
+
                 <!-- 簡約商品列表 (不可修改) -->
-                <div class="flex-column gap-3 mb-4 overflow-auto scroll-hide" style="max-height: 250px;">
+                <div class="flex-column gap-3 mb-4 overflow-auto scroll-hide text-start" style="max-height: 250px;">
                   <div v-for="item in store.cart" :key="item.id" class="d-flex align-items-center mb-3 bg-white p-2 rounded-3 border-bottom-0 border shadow-xs">
                     <img :src="item.image" class="rounded object-fit-cover me-3 border" style="width: 50px; height: 50px;">
                     <div class="flex-grow-1" style="min-width: 0;">
@@ -189,19 +218,31 @@
                 </div>
 
                 <!-- 結算資訊 -->
-                <div class="bg-white p-4 rounded-4 border shadow-sm mb-4">
+                <div class="bg-white p-4 rounded-4 border shadow-sm mb-4 text-start">
                   <div class="d-flex justify-content-between mb-2">
                     <span class="text-secondary small">商品總計</span>
                     <span class="fw-bold text-dark small">${{ store.cartTotal.toLocaleString() }}</span>
                   </div>
+                  
+                  <!-- 滿額折抵 -->
+                  <div v-if="store.appliedDiscount > 0" class="d-flex justify-content-between mb-2 animate-fade-in">
+                    <span class="text-danger small fw-bold">行銷活動折抵</span>
+                    <span class="fw-bold text-danger small">- ${{ store.appliedDiscount.toLocaleString() }}</span>
+                  </div>
+
                   <div class="d-flex justify-content-between mb-2">
                     <span class="text-secondary small">運費</span>
-                    <span class="fw-bold text-dark small">${{ shippingFee.toLocaleString() }}</span>
+                    <div v-if="store.isFreeShipping" class="text-end">
+                      <span class="text-decoration-line-through text-muted small me-2">${{ shippingFee }}</span>
+                      <span class="fw-bold text-success small">已免運 ($0)</span>
+                    </div>
+                    <span v-else class="fw-bold text-dark small">${{ shippingFee.toLocaleString() }}</span>
                   </div>
+
                   <hr class="my-3 border-light opacity-100">
                   <div class="d-flex justify-content-between align-items-center">
                     <span class="fw-bolder fs-5 text-dark">帳單總計</span>
-                    <span class="fw-bolder fs-3 text-danger shadow-text">${{ (store.cartTotal + shippingFee).toLocaleString() }}</span>
+                    <span class="fw-bolder fs-3 text-danger shadow-text">${{ (store.cartTotal - store.appliedDiscount + (store.isFreeShipping ? 0 : shippingFee)).toLocaleString() }}</span>
                   </div>
                 </div>
 
@@ -291,7 +332,8 @@ export default {
   data() {
     return {
       store,
-      currentStep: 1, // 1: 購物車, 2: 結帳資訊, 3: 成功
+      currentStep: 1, // 1: 購物車, 2: 填寫資料, 3: 完成
+      couponCode: '',
       shippingMethod: 'home',
       paymentMethod: 'transfer',
       address: '',
@@ -316,12 +358,17 @@ export default {
   },
   methods: {
     goToStep(step) {
-      if (step === 2 && this.store.cartCount === 0) return;
+      if (step === 2) {
+        if (this.store.cartCount === 0) return;
+        if (!this.store.isLoggedIn) {
+          this.store.showAssistantMessage("等一下下！結帳前需要先登入才能紀錄您的配送資訊喔！內選單已為您開啟，請選擇登入方式 🦊🔒", 'idle', 6000);
+          this.store.openMobileMenu();
+          return;
+        }
+      }
       if (step === 1 && this.currentStep === 3) return; // 成功後不回跳
       this.currentStep = step;
-      // 跳轉時自動捲回頂部
-      const scrollArea = this.$el.querySelector('.scroll-area');
-      if (scrollArea) scrollArea.scrollTop = 0;
+      this.scrollToTop();
     },
     submitOrder() {
       if (this.store.cartCount === 0) return;
@@ -336,6 +383,34 @@ export default {
     },
     goHome() {
       this.$router.push('/');
+    },
+    onCouponFocus() {
+      if (this.store.coupon.isApplied) return;
+      this.store.showAssistantMessage("需要優惠碼嗎？我幫您找出了專屬折扣喔！🦊✨", 'processing', 10000, {
+        label: "套用 BUYPLUS2026 (9折) 🎁",
+        callback: () => {
+          this.couponCode = 'BUYPLUS2026';
+          this.handleApplyCoupon();
+          this.store.showAssistantMessage("太棒了！已為您自動輸入並套用 10% 折扣囉！🦊🎊", 'success', 5000);
+        }
+      });
+    },
+    handleApplyCoupon() {
+      const result = this.store.applyCoupon(this.couponCode);
+      if (result.success) {
+        this.store.showAssistantMessage(result.message, 'success', 5000);
+      } else {
+        this.store.showAssistantMessage(result.message, 'error', 5000);
+      }
+    },
+    handleRemoveCoupon() {
+      this.store.removeCoupon();
+      this.couponCode = '';
+      this.store.showAssistantMessage("已移除優惠碼，您可以嘗試輸入其他的喔！🦊", 'idle', 3000);
+    },
+    scrollToTop() {
+      const scrollArea = this.$el.querySelector('.scroll-area');
+      if (scrollArea) scrollArea.scrollTop = 0;
     }
   }
 }

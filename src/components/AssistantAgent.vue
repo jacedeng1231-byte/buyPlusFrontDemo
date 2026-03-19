@@ -6,7 +6,15 @@
     <!-- Speech Bubble -->
     <transition name="pop">
       <div v-if="store.assistant.message" class="speech-bubble">
-        {{ store.assistant.message }}
+        <div class="message-content">{{ store.assistant.message }}</div>
+        
+        <!-- Action Button -->
+        <div v-if="store.assistant.actionLabel" class="action-box mt-2">
+          <button @click.stop="store.assistant.actionCallback" class="btn btn-action btn-sm w-100 rounded-pill fw-bold">
+            {{ store.assistant.actionLabel }}
+          </button>
+        </div>
+
         <div class="bubble-arrow"></div>
       </div>
     </transition>
@@ -52,10 +60,10 @@ const mascotStyle = computed(() => {
 });
 
 // 智慧型提示：模擬「思考」過程
-const thinkAndSpeak = (message, state = 'idle', duration = 6000) => {
+const thinkAndSpeak = (message, state = 'idle', duration = 6000, action = null) => {
   store.setAssistantState('processing'); // 變更為思考狀態
   setTimeout(() => {
-    store.showAssistantMessage(message, state, duration);
+    store.showAssistantMessage(message, state, duration, action);
   }, 1000); // 思考一秒後說話
 };
 
@@ -70,17 +78,99 @@ const handleMascotClick = () => {
 
   // 2. 結帳頁面狀態
   if (route.path.includes('checkout')) {
-    const threshold = 1200;
-    const gap = threshold - store.cartTotal;
-    if (gap > 0) {
-      thinkAndSpeak(`報個好康：再湊 $${gap} 就能享免運優惠囉！🚚 要不要考慮帶件「棉質素面T」來湊滿額呢？`, 'success', 7000);
+    const total = store.cartTotal;
+    const nextDiscountGoal = (Math.floor(total / 1000) + 1) * 1000;
+    const gapDiscount = nextDiscountGoal - total;
+    const gapShipping = 1200 - total;
+    
+    // 推薦商品資料 (精選幾件好湊的小物)
+    const items = [
+      { id: 2, name: "棉質素面T", price: 350, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=200' },
+      { id: 5, name: "大容量水瓶", price: 280, image: 'https://images.unsplash.com/photo-1602143399827-7034e34cb180?q=80&w=200' },
+      { id: 4, name: "透氣編織帽", price: 420, image: 'https://images.unsplash.com/photo-1514859541629-278a9037c3f5?q=80&w=200' }
+    ];
+
+    // 根據金額區間給予不同建議
+    if (total < 1000) {
+      const rec = items[0];
+      thinkAndSpeak(
+        `報個好康：目前還差 $${gapDiscount} 就能「現折 $100」💰，離免運門檻也只差 $${gapShipping} 唷！要不要帶件「${rec.name}」來湊呢？`,
+        'success',
+        10000,
+        {
+          label: `我也要「${rec.name}」($${rec.price})`,
+          callback: () => {
+            store.addToCart(rec);
+            setTimeout(() => store.showAssistantMessage("聰明！離下一個優惠更近一步了！🦊✨", 'success', 4000), 500);
+          }
+        }
+      );
+    } else if (total < 1200) {
+      const rec = items[1];
+      thinkAndSpeak(
+        `太讚了！您已享有 $${store.appliedDiscount} 的折扣！🎉 目前離「免運優惠」只剩最後一哩路 ($${gapShipping})，推薦您帶個「${rec.name}」就免運囉！`,
+        'success',
+        10000,
+        {
+          label: `帶個「${rec.name}」湊免運！`,
+          callback: () => {
+            store.addToCart(rec);
+            setTimeout(() => store.showAssistantMessage("恭喜！免運門檻達成，我幫您把運費弄消失了！🦊🪄", 'success', 5000), 500);
+          }
+        }
+      );
     } else {
-      thinkAndSpeak("太強了！您的訂單已達免運門檻！省下的運費可以再多買一雙襪子呢～✨", 'success', 5000);
+      thinkAndSpeak(
+        `完美！訂單已疊加「${store.appliedDiscount} 元折扣」與「免運優惠」！✨ 我敢說您是今日的購物王！`,
+        'success',
+        6000
+      );
     }
     return;
   }
 
-  // 3. 首頁狀態
+  // 3. 訂購紀錄頁面狀態
+  if (route.path.includes('order')) {
+    const orders = store.orders || [];
+    const pendingCount = orders.filter(o => o.status === '待付款').length;
+    const processingCount = orders.filter(o => o.status === '處理中' || o.status === '待出貨' || o.status === '已出貨').length;
+
+    if (pendingCount > 0) {
+      thinkAndSpeak(
+        `主人！您目前有 ${pendingCount} 筆訂單尚未付款喔！💰 匯款完成後記得透過『匯款回報』告訴我，我會立刻催促賣家處理！🦊✨`,
+        'idle',
+        10000,
+        {
+          label: "立刻去匯款回報 📝",
+          callback: () => {
+            router.push('/money-transfer');
+            store.showAssistantMessage("好的！我們去回報頁面，記得準備好帳號後五碼喔！🦊", 'idle', 5000);
+          }
+        }
+      );
+    } else if (processingCount > 0) {
+      thinkAndSpeak(
+        `您的訂單正在精心準備中！🚚 點擊訂單可以展開查看長長的「物流日誌」，我也在幫您盯著進度呢，請放心！🦊📦`,
+        'success',
+        8000
+      );
+    } else if (orders.length === 0) {
+      thinkAndSpeak(
+        "訂購紀錄空空的耶？要去賣場逛逛，把心儀的商品帶回家嗎？現在還有免運好康喔！🦊🛍️",
+        'idle',
+        8000,
+        {
+          label: "前往逛逛賣場 🛒",
+          callback: () => router.push('/products')
+        }
+      );
+    } else {
+      thinkAndSpeak("歡迎回來！這裡記錄了您的所有購物回憶，有任何問題隨時找我喔！🦊✨", 'idle', 5000);
+    }
+    return;
+  }
+
+  // 4. 首頁狀態
   if (route.path === '/') {
     thinkAndSpeak("嘿！偷偷告訴您，下載「擺擺會員」APP 結帳更直覺，現在新註冊還送限時好禮喔！🎁✨", 'idle', 7000);
     return;
@@ -141,7 +231,7 @@ onUnmounted(() => {
 .assistant-container:not(.in-header) {
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  left: 20px;
 }
 
 .assistant-container:not(.in-header) .speech-bubble {
@@ -150,7 +240,7 @@ onUnmounted(() => {
 
 .assistant-container:not(.in-header) .bubble-arrow {
   bottom: -8px;
-  right: 20px;
+  left: 20px;
   border-width: 8px 8px 0 8px;
   border-color: white transparent transparent transparent;
 }
@@ -192,6 +282,14 @@ onUnmounted(() => {
   height: 100px;
   cursor: pointer;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .foxy-mascot {
+    width: 70px;
+    height: 70px;
+  }
 }
 
 .mascot-image {
@@ -215,6 +313,15 @@ onUnmounted(() => {
   border: 2px solid #ff6b35;
   white-space: normal;
   z-index: 10000;
+  max-width: 250px;
+}
+
+@media (max-width: 768px) {
+  .speech-bubble {
+    max-width: 200px;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
 }
 
 .bubble-arrow {

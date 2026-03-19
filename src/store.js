@@ -7,24 +7,46 @@ export const store = reactive({
   isLoggedIn: false, // 登入狀態 (預設未登入)
   cartAnimations: [], // 用於存放飛向購物車的動畫物件
   user: {
+    id: 'BP-881234',
+    lastName: '林',
+    firstName: '玉珊',
     name: '林玉珊',
-    id: 1,
-    avatar: 'https://i.pravatar.cc/100',
-    address: '123台灣台東縣府前郵局',
-    provider: ''
+    email: 'lin@example.com',
+    phone: '0912345678',
+    provider: 'line',
+    address: '台東縣鹿野鄉中華路三段 123 號'
   },
   isSidebarCollapsed: false, // 側邊欄收折狀態 (僅限電腦版)
+  isMobileMenuOpen: false, // 手機版選單狀態
   assistant: {
     state: 'idle', // 'idle', 'processing', 'success', 'error'
     message: '',
+    actionLabel: '', // 動作按鈕文字
+    actionCallback: null, // 按鈕點擊後的回報函式
     isVisible: true,
     timeout: null
+  },
+  coupon: {
+    code: '',
+    discount: 0,
+    isApplied: false
   },
   get cartCount() {
     return this.cart.reduce((total, item) => total + item.quantity, 0);
   },
   get cartTotal() {
     return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  },
+  get appliedDiscount() {
+    // 滿 1000 折 100 (每滿 1000 累計)
+    const promoDiscount = Math.floor(this.cartTotal / 1000) * 100;
+    const couponDiscountAmount = this.coupon.isApplied ? Math.floor(this.cartTotal * this.coupon.discount) : 0;
+    
+    return promoDiscount + couponDiscountAmount;
+  },
+  get isFreeShipping() {
+    // 滿 1200 免運
+    return this.cartTotal >= 1200;
   },
   get pendingPaymentTotal() {
     // 只加總「待付款」狀態的訂單金額
@@ -54,6 +76,11 @@ export const store = reactive({
   },
   // 收藏操作
   toggleFavorite(product) {
+    if (!this.isLoggedIn) {
+      this.showAssistantMessage("想收藏心儀商品嗎？登入後我就能幫您記在帳號裡囉！🦊💖", 'idle', 6000);
+      this.openMobileMenu();
+      return;
+    }
     const index = this.favorites.findIndex(item => item.id === product.id);
     if (index !== -1) {
       this.favorites.splice(index, 1);
@@ -160,10 +187,18 @@ export const store = reactive({
   setAssistantState(state) {
     this.assistant.state = state;
   },
-  showAssistantMessage(message, state = 'idle', duration = 5000) {
+  showAssistantMessage(message, state = 'idle', duration = 5000, action = null) {
     this.assistant.message = message;
     this.assistant.state = state;
     this.assistant.isVisible = true;
+    
+    if (action) {
+      this.assistant.actionLabel = action.label;
+      this.assistant.actionCallback = action.callback;
+    } else {
+      this.assistant.actionLabel = '';
+      this.assistant.actionCallback = null;
+    }
 
     if (this.assistant.timeout) {
       clearTimeout(this.assistant.timeout);
@@ -173,8 +208,30 @@ export const store = reactive({
       this.assistant.timeout = setTimeout(() => {
         this.assistant.message = '';
         this.assistant.state = 'idle';
+        this.assistant.actionLabel = '';
+        this.assistant.actionCallback = null;
         this.assistant.timeout = null;
       }, duration);
     }
+  },
+  openMobileMenu() {
+    this.isMobileMenuOpen = true;
+    // 重置狀態，避免下次失效
+    setTimeout(() => {
+      this.isMobileMenuOpen = false;
+    }, 500);
+  },
+  applyCoupon(code) {
+    if (code.toUpperCase() === 'BUYPLUS2026') {
+      this.coupon.code = code.toUpperCase();
+      this.coupon.discount = 0.1; // 10%
+      this.coupon.isApplied = true;
+      return { success: true, message: '優惠卷套用成功！享 9 折優惠 🎊' };
+    }
+    return { success: false, message: '無效的優惠碼，請再試一次 ❌' };
+  },
+  removeCoupon() {
+    this.coupon.code = '';
+    this.coupon.isApplied = false;
   }
 });

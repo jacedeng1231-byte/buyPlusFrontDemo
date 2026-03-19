@@ -411,6 +411,28 @@ export default {
     allOrders() {
       return this.store.orders;
     }
+  },
+  mounted() {
+    // 進入頁面後，主動檢查狀態並給予提示
+    setTimeout(() => {
+      const pendingCount = this.pendingOrders.length;
+      const processingCount = this.processingOrders.length;
+
+      if (pendingCount > 0) {
+        this.store.showAssistantMessage(`歡迎回來！您目前有 ${pendingCount} 筆訂單正在等待付款，需要我帶您去確認資訊嗎？🦊`, 'idle', 6000, {
+          label: "查看待付款訂單 💰",
+          callback: () => {
+            const el = document.getElementById('pending-tab');
+            if (el) el.click();
+            this.store.showAssistantMessage("點擊下方的訂單編號，就能看到匯款與配送細節囉！🦊✨", 'success', 5000);
+          }
+        });
+      } else if (processingCount > 0) {
+        this.store.showAssistantMessage(`您有 ${processingCount} 筆訂單正在處理中，我也在同步追蹤進度，請放心交給我！🦊📦`, 'success', 5000);
+      } else {
+        this.store.showAssistantMessage("這裡是訂購紀錄，您所有的購買歷史我都會為您細心守護！🦊🛡️", 'idle', 5000);
+      }
+    }, 1500);
   }
 }
 </script>
