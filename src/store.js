@@ -24,7 +24,7 @@ export const store = reactive({
     message: '',
     actionLabel: '', // 動作按鈕文字
     actionCallback: null, // 按鈕點擊後的回報函式
-    isVisible: true,
+    isVisible: false,
     timeout: null
   },
   coupon: {

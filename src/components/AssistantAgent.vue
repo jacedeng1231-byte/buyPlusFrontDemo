@@ -1,5 +1,5 @@
 <template>
-  <div v-if="store.assistant.isVisible || props.isStationed" 
+  <div v-if="false" 
        class="assistant-container" 
        :class="[store.assistant.state, { 'has-message': store.assistant.message, 'in-header': props.inHeader, 'is-librarian': isLibrarianRoute, 'is-stationed': props.isStationed }]">
     
